@@ -1,11 +1,14 @@
 # AirPlay 2 for Legacy Sonos
 
-Bring AirPlay 2 to one older Sonos player without native support. Choose the
-player you want the Pi to expose in AirPlay. Once that player is on your
-network, you can play music, skip tracks, and adjust its volume from your
-iPhone or Mac without the Sonos app. The **Play:3** is the only model we have
-confirmed so far.
+Bring older Sonos players into the same AirPlay workflow as your other
+speakers. A Raspberry Pi makes a selected player appear in the AirPlay
+picker, where you can play music, skip tracks, and adjust volume from your
+iPhone or Mac. Once the player is on your network, everyday playback works
+from AirPlay. The **Play:3** is the only model we have confirmed so far.
 
+The current installer configures one explicitly selected player per Pi.
+Support for selecting and running several players on one Pi would require
+separate receiver and stream settings for each player.
 
 Sonos can group an older player with an AirPlay-compatible Sonos speaker.
 That speaker needs to be powered on and receive the stream, which may mean
@@ -31,7 +34,7 @@ changes still need to be verified on each candidate.
 | Play:3 | **Confirmed** | Discovery |
 | Play:1 | Untested candidate | Discovery |
 | Playbar | Untested candidate | Discovery |
-| Play:5 (Gen 1), also known as ZonePlayer S5 | Untested candidate | Manual; S1 only |
+| Play:5 (Gen 1) and ZonePlayer S5 | Untested candidates | Manual; S1 only |
 | Connect and Connect:Amp (Gen 1) | Untested candidates | Manual; S1 only |
 | Connect and Connect:Amp (Gen 2) | Untested candidates | Manual |
 | ZonePlayer 80, 90, 100, and 120 | Untested candidates | Manual; S1 only |
