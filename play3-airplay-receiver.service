@@ -1,0 +1,20 @@
+[Unit]
+Description=Sonos Play 3 AirPlay receiver
+Requires=play3-airplay-clock.service play3-airplay-relay.service
+After=play3-airplay-clock.service play3-airplay-relay.service avahi-daemon.service
+PartOf=play3-airplay-relay.service play3-airplay-clock.service
+
+[Service]
+User=play3-airplay
+ExecStartPre=/bin/sh -c 'for try in 1 2 3 4 5; do test -p /run/play3-airplay/audio && test -p /run/play3-airplay/metadata && exit 0; sleep 1; done; exit 1'
+ExecStart=/opt/play3-airplay/run-audio receiver -c /opt/play3-airplay/shairport-sync.conf
+Nice=10
+MemoryMax=110M
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/run/play3-airplay
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

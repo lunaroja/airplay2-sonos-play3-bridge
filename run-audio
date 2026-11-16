@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+image=/opt/play3-airplay/image
+loader="$image/lib/ld-musl-aarch64.so.1"
+libraries="$image/lib:$image/usr/lib:$image/usr/local/lib:$image/usr/lib/pulseaudio"
+case "$1" in
+    clock) binary=nqptp; shift ;;
+    receiver) binary=shairport-sync; shift ;;
+    *) exit 2 ;;
+esac
+exec "$loader" --library-path "$libraries" "$image/usr/local/bin/$binary" "$@"

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 492" width="640" height="492" role="img" aria-labelledby="title description">
+  <title id="title">AirPlay 2 through a Raspberry Pi to a Sonos Play:3</title>
+  <desc id="description">Apple Music sends AirPlay 2 to Shairport Sync on the Raspberry Pi. The relay sends WAV audio over HTTP and sends playback and volume commands over Sonos UPnP.</desc>
+  <defs>
+    <marker id="arrow-audio" orient="auto" markerWidth="7" markerHeight="7" refX="6" refY="3.5">
+      <path d="M0 0 7 3.5 0 7Z" fill="#08776f"/>
+    </marker>
+    <marker id="arrow-control" orient="auto" markerWidth="7" markerHeight="7" refX="6" refY="3.5">
+      <path d="M0 0 7 3.5 0 7Z" fill="#6843b5"/>
+    </marker>
+  </defs>
+  <rect x="1" y="1" width="638" height="490" rx="24" fill="#f4f7fb" stroke="#d5deea" stroke-width="2"/>
+
+  <g font-family="system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif">
+    <rect x="112" y="24" width="416" height="70" rx="16" fill="#ffffff" stroke="#d5deea" stroke-width="2"/>
+    <text x="320" y="55" fill="#13243c" text-anchor="middle" font-size="25" font-weight="700">Apple Music</text>
+    <text x="320" y="79" fill="#47586e" text-anchor="middle" font-size="17">iPhone or Mac</text>
+
+    <path d="M320 96V151" stroke="#08776f" stroke-width="3" marker-end="url(#arrow-audio)"/>
+    <text x="336" y="127" fill="#076861" font-size="18" font-weight="700">AirPlay 2</text>
+
+    <rect x="48" y="155" width="544" height="132" rx="18" fill="#ffffff" stroke="#c5d3e3" stroke-width="2"/>
+    <text x="320" y="189" fill="#13243c" text-anchor="middle" font-size="25" font-weight="700">Raspberry Pi</text>
+    <rect x="68" y="208" width="224" height="57" rx="11" fill="#eaf0f8"/>
+    <rect x="348" y="208" width="224" height="57" rx="11" fill="#eaf0f8"/>
+    <text x="180" y="242" fill="#213a57" text-anchor="middle" font-size="20" font-weight="650">Shairport Sync</text>
+    <text x="460" y="242" fill="#213a57" text-anchor="middle" font-size="20" font-weight="650">Play:3 relay</text>
+    <path d="M299 236H339" stroke="#08776f" stroke-width="3" marker-end="url(#arrow-audio)"/>
+
+    <path d="M443 289V303H180V397" fill="none" stroke="#08776f" stroke-width="3" marker-end="url(#arrow-audio)"/>
+    <path d="M460 289V397" fill="none" stroke="#6843b5" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#arrow-control)"/>
+    <rect x="68" y="325" width="224" height="52" rx="10" fill="#e4f5f2"/>
+    <rect x="348" y="325" width="224" height="52" rx="10" fill="#eee8fb"/>
+    <text x="180" y="347" fill="#075e58" text-anchor="middle" font-size="18" font-weight="700">WAV audio</text>
+    <text x="180" y="367" fill="#075e58" text-anchor="middle" font-size="16">HTTP stream</text>
+    <text x="460" y="347" fill="#553390" text-anchor="middle" font-size="18" font-weight="700">Playback and volume</text>
+    <text x="460" y="367" fill="#553390" text-anchor="middle" font-size="16">Sonos UPnP</text>
+
+    <rect x="48" y="402" width="544" height="66" rx="16" fill="#13243c"/>
+    <text x="320" y="443" fill="#ffffff" text-anchor="middle" font-size="27" font-weight="700">Sonos Play:3</text>
+  </g>
+</svg>

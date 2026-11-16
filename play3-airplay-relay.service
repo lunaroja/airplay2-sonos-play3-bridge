@@ -1,0 +1,25 @@
+[Unit]
+Description=Play:3 local audio relay
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=play3-airplay
+RuntimeDirectory=play3-airplay
+RuntimeDirectoryMode=0700
+WorkingDirectory=/opt/play3-airplay
+EnvironmentFile=/etc/play3-airplay/relay.env
+Environment=DIDL_PUSH=0
+Environment=FLUSH_RESYNC=0
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/usr/bin/python3 -u /opt/play3-airplay/play3-relay.py
+Nice=10
+MemoryMax=110M
+NoNewPrivileges=yes
+ProtectSystem=strict
+PrivateTmp=yes
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
