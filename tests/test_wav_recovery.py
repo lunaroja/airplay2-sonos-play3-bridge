@@ -27,6 +27,45 @@ class WavRecoveryTest(unittest.TestCase):
         state.start()
         self.addCleanup(state.stop)
 
+    def test_existing_wav_client_gets_bounded_silence_during_a_skip(self):
+        handler_type = app["Play3StreamHandler"]
+        handler = MagicMock()
+        namespace = handler_type.serve_wav.__globals__
+        pcm_a = b"\x11\x00\x12\x00"
+        pcm_b = b"\x21\x00\x22\x00"
+
+        def chunks():
+            yield (0, b"")  # Before playback, leave the header-only connection alone.
+            yield (4, pcm_a)
+            yield (4, b"")
+            yield (4, b"")
+            yield (8, pcm_b)
+            yield (8, b"")
+            yield (8, b"")  # Do not add more silence after the five-second limit.
+            yield (12, pcm_a)
+            relay.STATE["active"] = False
+            yield (12, b"")
+
+        with (
+            patch.object(namespace["select"], "poll") as make_poll,
+            patch.object(namespace["time"], "monotonic", side_effect=(
+                1, 2, 2.25, 2.5, 2.6, 8, 9, 10, 10.25,
+            )),
+            patch.object(relay.RING, "join_pos", return_value=0),
+            patch.object(relay.RING, "read_from", side_effect=chunks()) as read,
+        ):
+            make_poll.return_value.poll.side_effect = [False] * 9 + [True]
+            handler_type.serve_wav(handler)
+
+        header, first, gap_a, gap_b, second, long_gap, third = [
+            call.args[0] for call in handler.wfile.write.call_args_list
+        ]
+        self.assertEqual(header, relay.wav_header())
+        self.assertEqual((first, second, third), (pcm_a, pcm_b, pcm_a))
+        self.assertEqual((gap_a, gap_b, long_gap), (bytes(44100), bytes(44100), bytes(882000)))
+        self.assertEqual([call.args[0] for call in read.call_args_list], [0, 0, 4, 4, 4, 8, 8, 8, 12])
+        self.assertEqual(relay.CLIENTS, set())
+
     def test_short_gap_then_audio_schedules_a_retry(self):
         pipe = MagicMock()
         # Time between the connected chunk and fresh audio is under two seconds.

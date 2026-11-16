@@ -42,6 +42,12 @@ class Play3HTTPServer(ThreadingHTTPServer):
         return client_address[0] == target
 
 
+# Match the receiver PCM format: 44.1 kHz, stereo, signed 16-bit.
+WAV_SAMPLE_RATE = 44100
+WAV_READ_TIMEOUT = 0.25
+WAV_MAX_GAP = 5.0
+
+
 class Play3StreamHandler(relay.StreamHandler):
     def serve_art(self):
         self.send_error(404)
@@ -59,12 +65,28 @@ class Play3StreamHandler(relay.StreamHandler):
         position = relay.RING.join_pos()
         relay.CLIENTS.add(self.connection)
         log(f"wav client {self.address_string()} connected")
+        last_audio_at = None
+        padding_sent = 0
         try:
             self.wfile.write(relay.wav_header())
             while not connection.poll(0):
-                position, audio = relay.RING.read_from(position, timeout=0.25)
+                position, audio = relay.RING.read_from(position, timeout=WAV_READ_TIMEOUT)
+                now = time.monotonic()
                 if audio:
+                    if padding_sent:
+                        log(f"WAV audio resumed after {now - last_audio_at:.2f}s gap")
+                    last_audio_at = now
+                    padding_sent = 0
                     self.wfile.write(audio)
+                elif last_audio_at is not None and relay.STATE["active"]:
+                    # Keep an established stream fed during a short track gap.
+                    # Deliver silence only to this client, without moving the ring
+                    # cursor or replaying the gap to a newly connected client.
+                    elapsed = min(now - last_audio_at, WAV_MAX_GAP)
+                    due = int(elapsed * WAV_SAMPLE_RATE) * 4
+                    if due > padding_sent:
+                        self.wfile.write(bytes(due - padding_sent))
+                        padding_sent = due
         except OSError:
             pass
         finally:

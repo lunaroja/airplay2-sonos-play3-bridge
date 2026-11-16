@@ -157,16 +157,33 @@ class TwoPlayersTest(unittest.TestCase):
             self.assertEqual(stream_a.read(len(PCM_A)), PCM_A)
             self.assertEqual(stream_b.read(len(PCM_B)), PCM_B)
 
+            # A track boundary keeps the AirPlay session active but starves the PCM pipe.
+            # The existing speaker connection must get silence followed by new audio.
+            self.assertEqual(stream_a.read(len(PCM_A)), bytes(len(PCM_A)))
+            audio[0].write(PCM_B)
+            def read_until_pcm(stream, pcm, failure):
+                recent = bytearray()
+
+                def arrived():
+                    recent.extend(stream.read1(64 * 1024))
+                    return pcm in recent
+
+                wait_for(arrived, failure)
+
+            read_until_pcm(stream_a, PCM_B, "new track did not reach the existing WAV connection")
+            self.assertEqual(first.actions.count("Play"), 1)
+            self.assertEqual(first.actions.count("SetAVTransportURI"), 1)
+
             event(metadata[0], "pvol", b"-18.0")
             wait_for(lambda: first.volume == 40, "volume did not reach the selected player")
             self.assertIsNone(second.volume)
 
             event(metadata[0], "pend")
             wait_for(lambda: first.state == "STOPPED", "first player did not stop")
-            self.assertEqual(stream_a.read(), b"")
+            self.assertEqual(stream_a.read().strip(b"\0"), b"")
             self.assertEqual(second.state, "PLAYING")
             audio[1].write(PCM_B)
-            self.assertEqual(stream_b.read(len(PCM_B)), PCM_B)
+            read_until_pcm(stream_b, PCM_B, "second player lost audio when the first stopped")
 
             event(metadata[0], "pbeg")
             wait_for(lambda: first.state == "PLAYING", "first player did not start again")
