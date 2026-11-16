@@ -1,9 +1,9 @@
 # AirPlay 2 bridge for Sonos Play:3
 
-The goal is to keep the Sonos Play:3 useful with Apple Music and other
-AirPlay 2 speakers. A Raspberry Pi makes the Play:3 appear in the AirPlay
-picker, so you can play music, skip tracks, and adjust the speaker's volume
-from your iPhone or Mac.
+This project keeps older Sonos speakers useful by bringing them into AirPlay 2.
+The Play:3 is the first supported model. A Raspberry Pi makes it appear in
+the AirPlay picker, so you can play music, skip tracks, and adjust the
+speaker's volume from your iPhone or Mac.
 
 ![Apple Music sends AirPlay 2 to the Pi. The relay sends WAV audio and playback and volume commands to the Play:3.](docs/airplay-flow.svg)
 
@@ -71,6 +71,13 @@ the service and port conflicts before installing. To change the AirPlay name or
 timing, edit `/opt/play3-airplay/shairport-sync.conf`. The stream and volume
 settings live in `/etc/play3-airplay/relay.env`. After either edit, restart with
 `sudo systemctl restart play3-airplay-relay play3-airplay-receiver`.
+
+## Contributing
+
+PRs that improve playback on the Play:3 or bring other legacy Sonos models
+into AirPlay 2 are welcome. If you've tested on a speaker, share the model,
+Sonos software version, and what worked for playback, track changes, and
+volume control.
 
 ## Credits
 
