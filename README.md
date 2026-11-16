@@ -1,9 +1,10 @@
 # AirPlay 2 for Legacy Sonos
 
-Bring AirPlay 2 to older Sonos players without native support. A Raspberry Pi
-makes a selected Sonos player appear in the AirPlay picker, so you can play
-music, skip tracks, and adjust the speaker's volume from your iPhone or Mac.
-The **Play:3** is the only model we have confirmed so far.
+Bring AirPlay 2 to one older Sonos player without native support. Choose the
+player you want the Pi to expose in AirPlay. Once that player is on your
+network, you can play music, skip tracks, and adjust its volume from your
+iPhone or Mac without the Sonos app. The **Play:3** is the only model we have
+confirmed so far.
 
 
 Sonos can group an older player with an AirPlay-compatible Sonos speaker.
@@ -51,8 +52,8 @@ earlier. [Shairport Sync timing guide](https://github.com/mikebrady/shairport-sy
 ## Install on a 64-bit Raspberry Pi
 
 The installer targets Raspberry Pi OS or Debian on ARM64 with systemd. Use a
-trusted LAN, reserve IPv4 addresses for the Pi and the Sonos player, and
-ungroup the player in the Sonos app before testing.
+trusted LAN and reserve IPv4 addresses for the Pi and your selected Sonos
+player. Choose a player that's already standalone on the network.
 
 1. Install the host tools on the Pi.
 
