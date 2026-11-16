@@ -6,10 +6,9 @@ picker, where you can play music, skip tracks, and adjust volume from your
 iPhone or Mac. Once the player is on your network, everyday playback works
 from AirPlay. The **Play:3** is the only model we have confirmed so far.
 
-One Pi can run a separate AirPlay receiver for each player you opt in. Each
-has its own name, stream, and volume control. Each selected Sonos player
-should be standalone. Two-player operation has been tested with simulated
-Sonos players.
+Starting with v1.1.0, one Pi can run a separate AirPlay receiver for each
+standalone player you opt in. Each appears in the AirPlay picker with its
+own name, stream, and volume control.
 
 Sonos can group an older player with an AirPlay-compatible Sonos speaker.
 That speaker needs to be powered on and receive the stream, which may mean
@@ -30,9 +29,9 @@ untested rows are candidates for testing, based on the bridge's use of local
 Sonos transport and volume controls. Playback over WAV, volume, and track
 changes still need to be verified on each candidate.
 
-| Model | Bridge status | Setup on main |
+| Model | Bridge status | Setup |
 | --- | --- | --- |
-| Play:3 | **Confirmed** | Discovery |
+| Play:3 | **Confirmed on one physical speaker** | Discovery |
 | Play:1 | Untested candidate | Discovery |
 | Playbar | Untested candidate | Discovery |
 | Play:5 (Gen 1) and ZonePlayer S5 | Untested candidates | Manual; S1 only |
@@ -43,6 +42,14 @@ changes still need to be verified on each candidate.
 Use the model and generation in your Sonos account to check eligibility.
 [Sonos AirPlay compatibility](https://support.sonos.com/en/article/stream-airplay-audio-to-sonos)
 · [Sonos app compatibility](https://support.sonos.com/en/article/sonos-app-version-compatibility)
+
+### Multiple players on one Pi
+
+We tested two simulated Sonos players through one bridge host and verified
+playback and track skips in Apple Music on one physical Play:3. Running two or more
+physical players from the same Pi still needs testing. If you try it, we'd
+welcome your results, including how each speaker behaves when selected
+individually and when playing at the same time.
 
 ## Sync with other AirPlay speakers
 
@@ -134,10 +141,11 @@ adding the two template units and the profile manager before enabling profiles.
 
 ## Contributing
 
-PRs that improve playback on the Play:3 or bring other legacy Sonos models
-into AirPlay 2 are welcome. If you've tested on a speaker, share the model,
-Sonos software version, and what worked for playback, track changes, and
-volume control.
+Test reports and PRs are welcome for multiple players on one Pi and for
+other legacy Sonos models. Share the bridge version, speaker models, Sonos
+software versions, and what happened when you started playback, skipped
+tracks, and changed volume. For multi-speaker testing, include which
+speakers were selected in AirPlay when the behavior occurred.
 
 ## Credits
 
