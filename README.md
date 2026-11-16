@@ -1,15 +1,43 @@
-# AirPlay 2 bridge for Sonos Play:3
+# AirPlay 2 for Legacy Sonos
 
-This project keeps older Sonos speakers useful by bringing them into AirPlay 2.
-The Play:3 is the first supported model. A Raspberry Pi makes it appear in
-the AirPlay picker, so you can play music, skip tracks, and adjust the
-speaker's volume from your iPhone or Mac.
+Bring AirPlay 2 to older Sonos players without native support. A Raspberry Pi
+makes a selected Sonos player appear in the AirPlay picker, so you can play
+music, skip tracks, and adjust the speaker's volume from your iPhone or Mac.
+The **Play:3** is the only model we have confirmed so far.
 
-![Apple Music sends AirPlay 2 to the Pi. The relay sends WAV audio and playback and volume commands to the Play:3.](docs/airplay-flow.svg)
+
+Sonos can group an older player with an AirPlay-compatible Sonos speaker.
+That speaker needs to be powered on and receive the stream, which may mean
+buying another speaker or tying up one you already use. The Pi receives
+AirPlay so the older player can play on its own.
+[Sonos AirPlay and grouping guide](https://support.sonos.com/en/article/stream-airplay-audio-to-sonos)
+
+![Apple Music sends AirPlay 2 to the Pi. The relay sends WAV audio and playback and volume commands to the Sonos player.](docs/airplay-flow.svg)
 
 The Pi receives AirPlay through Shairport Sync and relays the audio to the
-Play:3 over the network. It streams WAV by default, with FLAC available as an
+selected Sonos player over the network. It streams WAV by default, with FLAC available as an
 option.
+
+## Compatibility
+
+These are standalone Sonos playback devices without native AirPlay. The
+untested rows are candidates for testing, based on the bridge's use of local
+Sonos transport and volume controls. Playback over WAV, volume, and track
+changes still need to be verified on each candidate.
+
+| Model | Bridge status | Setup on main |
+| --- | --- | --- |
+| Play:3 | **Confirmed** | Discovery |
+| Play:1 | Untested candidate | Discovery |
+| Playbar | Untested candidate | Discovery |
+| Play:5 (Gen 1), also known as ZonePlayer S5 | Untested candidate | Manual; S1 only |
+| Connect and Connect:Amp (Gen 1) | Untested candidates | Manual; S1 only |
+| Connect and Connect:Amp (Gen 2) | Untested candidates | Manual |
+| ZonePlayer 80, 90, 100, and 120 | Untested candidates | Manual; S1 only |
+
+Use the model and generation in your Sonos account to check eligibility.
+[Sonos AirPlay compatibility](https://support.sonos.com/en/article/stream-airplay-audio-to-sonos)
+· [Sonos app compatibility](https://support.sonos.com/en/article/sonos-app-version-compatibility)
 
 ## Sync with other AirPlay speakers
 
@@ -23,8 +51,8 @@ earlier. [Shairport Sync timing guide](https://github.com/mikebrady/shairport-sy
 ## Install on a 64-bit Raspberry Pi
 
 The installer targets Raspberry Pi OS or Debian on ARM64 with systemd. Use a
-trusted LAN, reserve IPv4 addresses for the Pi and the Play:3, and ungroup
-the Play:3 in the Sonos app before testing.
+trusted LAN, reserve IPv4 addresses for the Pi and the Sonos player, and
+ungroup the player in the Sonos app before testing.
 
 1. Install the host tools on the Pi.
 
@@ -46,9 +74,8 @@ the Play:3 in the Sonos app before testing.
    recognizes the Play:1, Play:3 and Playbar as candidates. Playback has
    been tested on the Play:3.
 
-   If discovery is unavailable, check the model against
-   [Sonos's native AirPlay compatibility list](https://support.sonos.com/en/article/stream-airplay-audio-to-sonos).
-   Copy `relay.env.example` to `relay.env` and set the Pi IP, speaker IP and speaker
+   For a model marked **Manual**, or if discovery is unavailable, copy
+   `relay.env.example` to `relay.env` and set the Pi IP, speaker IP and speaker
    UUID manually. The UUID appears in the speaker's device description at
    `http://<speaker-ip>:1400/xml/device_description.xml` as the first device's
    `UDN`. Remove the `uuid:` prefix when copying it into `relay.env`.
@@ -72,7 +99,7 @@ the Play:3 in the Sonos app before testing.
    sudo ./install-pi receiver-image server.py relay.env
    ```
 
-5. Select **Sonos Play 3** in Apple Music's AirPlay picker. Play a track,
+5. Select **Legacy Sonos** in Apple Music's AirPlay picker. Play a track,
    adjust volume, then skip to another track. The service starts on boot.
 
    ```sh

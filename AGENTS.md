@@ -33,8 +33,8 @@ project; follow its actual workflow.
 
 ## Project
 
-This repository adapts the pinned AirPlay-to-DLNA relay to one standalone
-Sonos Play:3. The README owns installation, tested behavior, and sync limits.
+This repository adapts the pinned AirPlay-to-DLNA relay to standalone legacy
+Sonos players. The README owns installation, confirmed models, and sync limits.
 
 - Keep relay.env.example synthetic and keep local relay.env, downloaded
   upstream sources and extracted receiver images out of Git.

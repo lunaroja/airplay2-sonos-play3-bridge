@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 492" width="640" height="492" role="img" aria-labelledby="title description">
-  <title id="title">AirPlay 2 through a Raspberry Pi to a Sonos Play:3</title>
+  <title id="title">AirPlay 2 through a Raspberry Pi to a legacy Sonos player</title>
   <desc id="description">Apple Music sends AirPlay 2 to Shairport Sync on the Raspberry Pi. The relay sends WAV audio over HTTP and sends playback and volume commands over Sonos UPnP.</desc>
   <defs>
     <marker id="arrow-audio" orient="auto" markerWidth="7" markerHeight="7" refX="6" refY="3.5">
@@ -24,7 +24,7 @@
     <rect x="68" y="208" width="224" height="57" rx="11" fill="#eaf0f8"/>
     <rect x="348" y="208" width="224" height="57" rx="11" fill="#eaf0f8"/>
     <text x="180" y="242" fill="#213a57" text-anchor="middle" font-size="20" font-weight="650">Shairport Sync</text>
-    <text x="460" y="242" fill="#213a57" text-anchor="middle" font-size="20" font-weight="650">Play:3 relay</text>
+    <text x="460" y="242" fill="#213a57" text-anchor="middle" font-size="20" font-weight="650">Sonos relay</text>
     <path d="M299 236H339" stroke="#08776f" stroke-width="3" marker-end="url(#arrow-audio)"/>
 
     <path d="M443 289V303H180V397" fill="none" stroke="#08776f" stroke-width="3" marker-end="url(#arrow-audio)"/>
@@ -37,6 +37,6 @@
     <text x="460" y="367" fill="#553390" text-anchor="middle" font-size="16">Sonos UPnP</text>
 
     <rect x="48" y="402" width="544" height="66" rx="16" fill="#13243c"/>
-    <text x="320" y="443" fill="#ffffff" text-anchor="middle" font-size="27" font-weight="700">Sonos Play:3</text>
+    <text x="320" y="443" fill="#ffffff" text-anchor="middle" font-size="27" font-weight="700">Legacy Sonos</text>
   </g>
 </svg>
