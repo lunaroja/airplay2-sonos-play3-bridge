@@ -21,6 +21,11 @@ QUERY = (
     f"ST: {ZONE_PLAYER}\r\n\r\n"
 ).encode("ascii")
 DESCRIPTION_LIMIT = 65536
+TOPOLOGY_LIMIT = 524288
+TOPOLOGY_SERVICE = "urn:schemas-upnp-org:service:ZoneGroupTopology:1"
+# A zero topology flag can also reflect how a speaker is configured.
+# Only offer models known to lack native AirPlay from Sonos's compatibility list.
+LEGACY_MODELS = {"play:1", "play:3", "playbar"}
 
 
 class Speaker(NamedTuple):
@@ -86,6 +91,52 @@ def read_description(address):
         connection.close()
 
 
+def topology_status(topology, speaker):
+    for group in topology.findall(".//ZoneGroup"):
+        members = group.findall("ZoneGroupMember")
+        for member in group.iter():
+            if member.get("UUID") != speaker.uuid:
+                continue
+            airplay = member.get("AirPlayEnabled")
+            if airplay == "1":
+                return "native AirPlay 2"
+            if (
+                members != [member]
+                or group.get("Coordinator") != speaker.uuid
+                or member.findall("Satellite")
+            ):
+                return "grouped or bonded; ungroup before setup"
+            if airplay == "0" and speaker.model.casefold().removeprefix("sonos ") in LEGACY_MODELS:
+                return "eligible"
+    return "AirPlay support unverified"
+
+
+def classify(speaker):
+    connection = HTTPConnection(speaker.ip, 1400, timeout=2)
+    body = (
+        '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body>'
+        f'<u:GetZoneGroupState xmlns:u="{TOPOLOGY_SERVICE}"/>'
+        '</s:Body></s:Envelope>'
+    )
+    try:
+        connection.request("POST", "/ZoneGroupTopology/Control", body, {
+            "SOAPACTION": f'"{TOPOLOGY_SERVICE}#GetZoneGroupState"',
+            "Content-Type": "text/xml",
+        })
+        reply = connection.getresponse()
+        if reply.status == 200:
+            data = reply.read(TOPOLOGY_LIMIT + 1)
+            if len(data) <= TOPOLOGY_LIMIT and b"<!DOCTYPE" not in data.upper():
+                topology = ElementTree.fromstring(data).findtext(".//{*}ZoneGroupState")
+                if topology and "<!DOCTYPE" not in topology.upper():
+                    return topology_status(ElementTree.fromstring(topology), speaker)
+    except (OSError, HTTPException, ElementTree.ParseError):
+        pass
+    finally:
+        connection.close()
+    return "AirPlay support unverified"
+
+
 def bridge_address(speaker):
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as route:
         route.connect((speaker.ip, 1400))
@@ -103,6 +154,7 @@ def main():
         with ThreadPoolExecutor(max_workers=8) as workers:
             speakers = sorted(filter(None, workers.map(read_description, discover_addresses())),
                               key=lambda item: (item.name.casefold(), item.ip))
+            candidates = list(zip(speakers, workers.map(classify, speakers)))
     except OSError as error:
         parser.exit(1, f"Sonos discovery failed: {error}\n")
     if not speakers:
@@ -112,6 +164,9 @@ def main():
         if len(matches) != 1:
             parser.error("Select one unique speaker UUID from the discovery list.")
         speaker = matches[0]
+        status = next(status for item, status in candidates if item == speaker)
+        if status != "eligible":
+            parser.error(f"{speaker.model}: {status}; no config written")
         try:
             address = bridge_address(speaker)
         except OSError as error:
@@ -129,8 +184,8 @@ def main():
         else:
             print(config, end="")
         return
-    for speaker in speakers:
-        print(f"{speaker.name} ({speaker.model})  {speaker.ip}  {speaker.uuid}")
+    for speaker, status in candidates:
+        print(f"{speaker.name} ({speaker.model})  {speaker.ip}  {speaker.uuid}  [{status}]")
 
 
 if __name__ == "__main__":

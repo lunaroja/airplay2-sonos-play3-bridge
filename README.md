@@ -34,16 +34,21 @@ the Play:3 in the Sonos app before testing.
    ```
 
 2. Run discovery **on the Pi**, then choose the UUID of the one speaker you
-   want to expose in AirPlay.
+   want to expose in AirPlay from the entries marked `eligible`.
 
    ```sh
    python3 discover-sonos.py
    python3 discover-sonos.py --select RINCON_00000000000001400 --output relay.env
    ```
 
-   Replace the example UUID with the value from the list. Discovery only
-   reads device information. If discovery is unavailable, copy
-   `relay.env.example` to `relay.env` and set the Pi IP, speaker IP and speaker
+   Replace the example UUID with the value from the list. The helper skips
+   native AirPlay 2 receivers and models it cannot classify. It currently
+   recognizes the Play:1, Play:3 and Playbar as candidates. Playback has
+   been tested on the Play:3.
+
+   If discovery is unavailable, check the model against
+   [Sonos's native AirPlay compatibility list](https://support.sonos.com/en/article/stream-airplay-audio-to-sonos).
+   Copy `relay.env.example` to `relay.env` and set the Pi IP, speaker IP and speaker
    UUID manually. The UUID appears in the speaker's device description at
    `http://<speaker-ip>:1400/xml/device_description.xml` as the first device's
    `UDN`. Remove the `uuid:` prefix when copying it into `relay.env`.
