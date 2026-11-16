@@ -6,9 +6,10 @@ picker, where you can play music, skip tracks, and adjust volume from your
 iPhone or Mac. Once the player is on your network, everyday playback works
 from AirPlay. The **Play:3** is the only model we have confirmed so far.
 
-The current installer configures one explicitly selected player per Pi.
-Support for selecting and running several players on one Pi would require
-separate receiver and stream settings for each player.
+One Pi can run a separate AirPlay receiver for each player you opt in. Each
+has its own name, stream, and volume control. Each selected Sonos player
+should be standalone. Two-player operation has been tested with simulated
+Sonos players.
 
 Sonos can group an older player with an AirPlay-compatible Sonos speaker.
 That speaker needs to be powered on and receive the stream, which may mean
@@ -65,12 +66,13 @@ player. Choose a player that's already standalone on the network.
    sudo systemctl enable --now avahi-daemon
    ```
 
-2. Run discovery **on the Pi**, then choose the UUID of the one speaker you
-   want to expose in AirPlay from the entries marked `eligible`.
+2. Run discovery **on the Pi**, then note the UUID of each speaker you
+   want to expose in AirPlay from the entries marked `eligible`. Generate a
+   separate config file for each one.
 
    ```sh
    python3 discover-sonos.py
-   python3 discover-sonos.py --select RINCON_00000000000001400 --output relay.env
+   python3 discover-sonos.py --select RINCON_00000000000001400 --output office.env
    ```
 
    Replace the example UUID with the value from the list. The helper skips
@@ -79,10 +81,10 @@ player. Choose a player that's already standalone on the network.
    been tested on the Play:3.
 
    For a model marked **Manual**, or if discovery is unavailable, copy
-   `relay.env.example` to `relay.env` and set the Pi IP, speaker IP and speaker
-   UUID manually. The UUID appears in the speaker's device description at
+   `relay.env.example` to that player's config file and set its Pi IP, speaker
+   IP and UUID manually. The UUID appears in the speaker's device description at
    `http://<speaker-ip>:1400/xml/device_description.xml` as the first device's
-   `UDN`. Remove the `uuid:` prefix when copying it into `relay.env`.
+   `UDN`. Remove the `uuid:` prefix when copying it into the config file.
 
 3. Extract the official [Shairport Sync 5.6.3](https://github.com/mikebrady/shairport-sync/releases/tag/5.6.3)
    ARM64 image. With Docker available for this one-time step, run the
@@ -100,22 +102,35 @@ player. Choose a player that's already standalone on the network.
 
    ```sh
    curl -fL https://raw.githubusercontent.com/shinn-y/airplay2-dlna-bridge/6089a33ae8ffa5020c10a98d30fcaa92e8423eec/bridge/server.py -o server.py
-   sudo ./install-pi receiver-image server.py relay.env
+   sudo ./install-pi receiver-image server.py
    ```
 
-5. Select **Legacy Sonos** in Apple Music's AirPlay picker. Play a track,
-   adjust volume, then skip to another track. The service starts on boot.
+5. Enable each selected player. The profile ID (such as `office`) is local
+   to the Pi. The name is what you see in the AirPlay picker.
 
    ```sh
-   systemctl is-active play3-airplay-clock play3-airplay-relay play3-airplay-receiver
-   journalctl -u play3-airplay-receiver -u play3-airplay-relay
+   sudo /opt/play3-airplay/manage-player.py add office office.env --name "Office Sonos"
+   sudo /opt/play3-airplay/manage-player.py add study study.env --name "Study Sonos"
    ```
 
-If another AirPlay receiver or PTP service is already running on the Pi, resolve
-the service and port conflicts before installing. To change the AirPlay name or
-timing, edit `/opt/play3-airplay/shairport-sync.conf`. The stream and volume
-settings live in `/etc/play3-airplay/relay.env`. After either edit, restart with
-`sudo systemctl restart play3-airplay-relay play3-airplay-receiver`.
+   Select a player in Apple Music's AirPlay picker, play a track, adjust
+   volume, then skip to another track. Each enabled player starts at boot.
+   To stop advertising a player, remove its profile.
+
+   ```sh
+   sudo /opt/play3-airplay/manage-player.py remove study
+   journalctl -u play3-airplay-receiver@office -u play3-airplay-relay@office
+   ```
+
+Each profile lives in `/etc/play3-airplay/players/<profile>/`. The optional
+`--offset` at setup sets that player's timing offset in seconds. After editing
+a profile, restart its receiver and relay. The shared clock service can keep
+running.
+
+Existing single-player installations use the original service names and files.
+The installer still accepts an optional third argument for that setup. Updating
+those installations to use profiles requires updating the installed wrapper and
+adding the two template units and the profile manager before enabling profiles.
 
 ## Contributing
 

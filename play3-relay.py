@@ -29,7 +29,7 @@ services = {
     "RenderingControl": "/MediaRenderer/RenderingControl/Control",
     "ZoneGroupTopology": "/ZoneGroupTopology/Control",
 }
-runtime = Path("/run/play3-airplay")
+runtime = Path(os.environ.get("PLAY3_RUNTIME_DIR", "/run/play3-airplay"))
 relay.AUDIO_PIPE = str(runtime / "audio")
 relay.META_PIPE = str(runtime / "metadata")
 

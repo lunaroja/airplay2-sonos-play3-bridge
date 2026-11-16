@@ -1,20 +1,20 @@
 #!/bin/sh
 # Install the reviewed files, relay source and extracted ARM64 receiver release.
 set -eu
-if [ "$#" -ne 3 ] || [ "$(id -u)" -ne 0 ]; then
-    echo "Usage: sudo $0 EXTRACTED_IMAGE PINNED_SERVER_PY RELAY_ENV" >&2
+if { [ "$#" -ne 2 ] && [ "$#" -ne 3 ]; } || [ "$(id -u)" -ne 0 ]; then
+    echo "Usage: sudo $0 EXTRACTED_IMAGE PINNED_SERVER_PY [RELAY_ENV]" >&2
     exit 2
 fi
 source_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 image=$1
 relay=$2
-settings=$3
+settings=${3:-}
 dest=/opt/play3-airplay
 printf '%s  %s\n' 08cda064900c1c52da1725a2bdf39a9e808c81b08742cd53ea27c340e6a2a2d1 "$relay" | sha256sum -c -
 test -x "$image/lib/ld-musl-aarch64.so.1"
 test -x "$image/usr/local/bin/shairport-sync"
 test -x "$image/usr/local/bin/nqptp"
-test -s "$settings"
+[ -z "$settings" ] || test -s "$settings"
 test ! -e "$dest"
 test ! -e /etc/play3-airplay/relay.env
 for command in ffmpeg python3 systemctl systemd-analyze avahi-daemon; do
@@ -24,19 +24,19 @@ if ! getent passwd play3-airplay >/dev/null; then
     useradd --system --user-group --home-dir "$dest" --shell /usr/sbin/nologin play3-airplay
 fi
 install -d -m 755 /etc/play3-airplay
-install -m 644 "$settings" /etc/play3-airplay/relay.env
+[ -z "$settings" ] || install -m 644 "$settings" /etc/play3-airplay/relay.env
 install -d -m 755 "$dest" "$dest/image/usr/local"
 cp -a "$image/lib" "$dest/image/"
 cp -a "$image/usr/lib" "$dest/image/usr/"
 cp -a "$image/usr/local/bin" "$image/usr/local/lib" "$dest/image/usr/local/"
 install -m 644 "$relay" "$dest/server.py"
 install -m 644 "$source_dir/play3-relay.py" "$source_dir/shairport-sync.conf" "$dest/"
-install -m 755 "$source_dir/run-audio" "$dest/"
+install -m 755 "$source_dir/run-audio" "$source_dir/manage-player.py" "$dest/"
 "$dest/run-audio" receiver -V | grep -F '5.6.3-dirty-AirPlay2'
-for unit in clock relay receiver; do
-    name="play3-airplay-$unit.service"
+for name in play3-airplay-clock.service play3-airplay-relay.service \
+    play3-airplay-receiver.service play3-airplay-relay@.service play3-airplay-receiver@.service; do
     install -m 644 "$source_dir/$name" "/etc/systemd/system/$name"
 done
 systemd-analyze verify /etc/systemd/system/play3-airplay-*.service
 systemctl daemon-reload
-systemctl enable --now play3-airplay-receiver.service
+[ -z "$settings" ] || systemctl enable --now play3-airplay-receiver.service
