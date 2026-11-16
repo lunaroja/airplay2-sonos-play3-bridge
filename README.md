@@ -33,11 +33,20 @@ the Play:3 in the Sonos app before testing.
    sudo systemctl enable --now avahi-daemon
    ```
 
-2. Copy `relay.env.example` to `relay.env`. Set `BRIDGE_IP`, `SONOS_IP`
-   and `SONOS_UUID`. In the Play:3's device description at
-   `http://<speaker-ip>:1400/xml/device_description.xml`, use the first
-   device's `UDN` with the `uuid:` prefix removed. Leave `STREAM_FORMAT=wav`
-   for WAV or choose `flac`. `MAX_VOLUME` sets the AirPlay slider ceiling.
+2. Run discovery **on the Pi**, then choose the UUID of the one speaker you
+   want to expose in AirPlay.
+
+   ```sh
+   python3 discover-sonos.py
+   python3 discover-sonos.py --select RINCON_00000000000001400 --output relay.env
+   ```
+
+   Replace the example UUID with the value from the list. Discovery only
+   reads device information. If discovery is unavailable, copy
+   `relay.env.example` to `relay.env` and set the Pi IP, speaker IP and speaker
+   UUID manually. The UUID appears in the speaker's device description at
+   `http://<speaker-ip>:1400/xml/device_description.xml` as the first device's
+   `UDN`. Remove the `uuid:` prefix when copying it into `relay.env`.
 
 3. Extract the official [Shairport Sync 5.6.3](https://github.com/mikebrady/shairport-sync/releases/tag/5.6.3)
    ARM64 image. With Docker available for this one-time step, run the
